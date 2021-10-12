@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To do list</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/0fe232fab3.js" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <div class="container">
+      <h1>Todo List</h1>
+      <div class="alertDiv">
+
+      </div>
+      <form id="Form">
+          <div class="submitDiv">
+            <input type="text" name="" id="text-input" >
+            <button type="submit" id="submit" value="Submit"><h3>Submit</h3></button>
+          </div>
+          
+          <select name="select" id="selectOption">
+              <option value="All">All</option>
+              <option value="Completed">Completed</option>
+              <option value="Uncompleted">Uncompleted</option>
+          </select>
+          
+          <div id="list" class="listDiv">
+              <!-- todos are added here-->
+          </div>
+
+          <div class="clearBtn">clear todos</div>
+      </form>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
