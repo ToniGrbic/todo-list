@@ -5,14 +5,20 @@ const textInput = document.querySelector('#text-input')
 const alertDiv = document.querySelector(".alertDiv")
 const clearBtn = document.querySelector(".clearBtn")
 const submitText = document.querySelector("#submit h3")
-
+const dropdownMenu = document.querySelector(".dropdown-menu")
+const fileOptions = document.querySelector(".file-options")
+const fileName = document.querySelector(".fileName")
+const fileNameInput = document.querySelector("#fileName")
+const downloadButton = document.querySelector(".downloadButton")
+const openFile = document.querySelector(".open-file")
+const inputFile = document.querySelector(".input-file")
+const fileChoice = document.querySelector(".fileChoice")
 let completed = false
 let editFlag = false
 let editElement
 let editID = ''
 
 class UI {
-
  static checkItem(btn){
     let todo = btn.parentElement.parentElement;
     const id = todo.dataset.id;
@@ -66,7 +72,7 @@ class UI {
     setTimeout(function(){
         alertDiv.innerText = ''
         alertDiv.classList.remove(`alert-${action}`)
-    },1000)
+    },1500)
  }
 
  static setToDefault(){
@@ -77,6 +83,28 @@ class UI {
     submitText.innerText='Submit'
  }
 
+ static toggleFileMenu(){
+    if(!fileOptions.classList.contains('show-file-options')){
+        fileOptions.classList.add('show-file-options')
+    }else{
+        fileOptions.classList.remove('show-file-options')
+    }
+ }
+
+ static downloadFile(filename, text){
+    
+        let element = document.createElement('a')
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+        element.setAttribute('download', filename)
+      
+        element.style.display = 'none'
+        document.body.appendChild(element)
+      
+        element.click()
+      
+        document.body.removeChild(element)
+      
+ }
  appendTodo(text, id, completed){
     const itemDiv = document.createElement('div')
     const datasetAttr = document.createAttribute('data-id')
@@ -197,6 +225,58 @@ document.addEventListener('DOMContentLoaded', function(){
     
     const ui = new UI()
     ui.getItems()
+
+    dropdownMenu.addEventListener('click', function(e){
+        UI.toggleFileMenu()
+    })
+
+    fileOptions.addEventListener('click', function(e){
+        if(e.target.classList.contains('Save-as')){
+            
+            fileName.classList.toggle('show-fileName')
+            let todos = Storage.getLocalStorage()
+            let text = todos.map(todo => todo.text).join("\n")
+            
+            downloadButton.addEventListener('click', function(e){
+                let fileName = fileNameInput.value;
+                text = fileName + ": \n" + text
+                console.log(text)
+                UI.downloadFile(fileName, text)
+                fileNameInput.value=""
+            })
+            
+        }else if(e.target.classList.contains('Open')){
+            openFile.classList.toggle('show-open-file')
+            inputFile.addEventListener('change', function(e){
+                
+                let fileName = inputFile.files[0].name
+                fileChoice.innerText = "current file: " + fileName;
+
+                let todos = Storage.getLocalStorage()
+            
+                if(todos.length === 0){
+                    const reader = new FileReader()
+                    reader.readAsText(inputFile.files[0])
+                
+                    reader.onload = function(){
+                        fileItems = reader.result.split('\n').slice(1)
+                        let i = 0;
+                        fileItems.forEach((fileItem)=>{
+                            let id = new Date().getTime()
+                            id+= i
+                            id=id.toString()
+                            Storage.addStorageItem(fileItem, id) 
+                            i+=123
+                        }) 
+                    ui.getItems()
+                    UI.displayAlert("list opened from file", "success")
+                    }
+                }else{
+                    UI.displayAlert("list is not empty, cant open!", "danger")
+                }
+            }, false)
+        }
+    })
 
     submit.addEventListener('click', function(e) {
     

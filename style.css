@@ -151,6 +151,55 @@ div i{
     visibility:  visible !important; 
   }
 
+.input-file{
+    width:120px;
+    height: 25px;
+    
+}
+.open-file{
+    display:none;
+    
+}
+.show-open-file{
+    display:block;
+}
+
+.file-options{
+    display: none;
+}
+
+.show-file-options{
+    display: flex;
+}
+
+.fileChoice{
+    margin-top: 0;
+}
+.dropdown-menu{
+    text-align: center;
+    cursor:pointer;
+    background-color: rgb(243, 162, 11);
+    border:none;
+    margin-top: 10px;
+    font-size: 1.1rem;
+    border-radius: 0.3rem;
+    color: black;
+    padding: 0.5rem;
+    transition:500ms;
+}
+.dropdown-menu:hover{
+    background-color: rgb(255, 117, 4);
+}
+
+.fileName{
+    display:none;
+}
+.show-fileName{
+    display:block;
+}
+.div-file-menu{
+    margin-bottom: 0.8rem;
+}
 .clearBtn {
     width: 85%;
     text-align: center;
@@ -166,7 +215,21 @@ div i{
     transition:500ms;
 }
 
+.file-options{
+    background-color: rgb(243, 162, 11);
+    width:50%;
+    border-radius: 0 0.3rem 0.3rem 0.3rem ;
+}
 .clearBtn:hover{
    background-color: rgb(255, 117, 4);
 }
 
+li:hover{
+    background-color: rgb(255, 117, 4);
+    cursor: pointer;
+    
+}
+
+ul{
+    width:100%;
+}
