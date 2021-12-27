@@ -13,6 +13,7 @@ const downloadButton = document.querySelector(".downloadButton")
 const openFile = document.querySelector(".open-file")
 const inputFile = document.querySelector(".input-file")
 const fileChoice = document.querySelector(".fileChoice")
+
 let completed = false
 let editFlag = false
 let editElement
@@ -53,7 +54,6 @@ class UI {
     const element = btn.parentElement
     
     let todoStorageItem = Storage.getStorageItem(element.dataset.id)
-    console.log(todoStorageItem)
     editFlag = true
 
     if(todoStorageItem.completed && editFlag){
@@ -72,7 +72,7 @@ class UI {
     setTimeout(function(){
         alertDiv.innerText = ''
         alertDiv.classList.remove(`alert-${action}`)
-    },1500)
+    },1200)
  }
 
  static setToDefault(){
@@ -84,11 +84,7 @@ class UI {
  }
 
  static toggleFileMenu(){
-    if(!fileOptions.classList.contains('show-file-options')){
-        fileOptions.classList.add('show-file-options')
-    }else{
-        fileOptions.classList.remove('show-file-options')
-    }
+    fileOptions.classList.toggle('show-file-options')
  }
 
  static downloadFile(filename, text){
@@ -101,10 +97,18 @@ class UI {
         document.body.appendChild(element)
       
         element.click()
-      
         document.body.removeChild(element)
-      
  }
+
+ static clearTodos(){
+    const todos = listDiv.querySelectorAll(".todoDiv")
+        todos.forEach(function(todo){
+            listDiv.removeChild(todo)
+        })
+        clearBtn.classList.remove('show-container')
+        localStorage.removeItem('Items')
+ }
+
  appendTodo(text, id, completed){
     const itemDiv = document.createElement('div')
     const datasetAttr = document.createAttribute('data-id')
@@ -129,11 +133,10 @@ class UI {
         }
     })
 
-    if(completed){
+    if(completed)
         itemDiv.classList.add('todoCompleted')
-    }
-    
-     listDiv.appendChild(itemDiv); 
+
+    listDiv.appendChild(itemDiv); 
  }
 
  getItems(){
@@ -219,6 +222,15 @@ class Storage {
  static setLocalStorage(Items){
     localStorage.setItem('Items', JSON.stringify(Items))
  }
+
+ static addToStorageFromFile(fileItems){
+    let i = 0;
+    fileItems.forEach((fileItem)=>{
+        const id = new Date().getTime() + i
+        this.addStorageItem(fileItem, id.toString()) 
+        i++
+    }) 
+ }
 };
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -239,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function(){
             
             downloadButton.addEventListener('click', function(e){
                 let fileName = fileNameInput.value;
-                text = fileName + ": \n" + text
+                text = "todos:\n" + text
                 console.log(text)
                 UI.downloadFile(fileName, text)
                 fileNameInput.value=""
@@ -253,27 +265,19 @@ document.addEventListener('DOMContentLoaded', function(){
                 fileChoice.innerText = "current file: " + fileName;
 
                 let todos = Storage.getLocalStorage()
-            
-                if(todos.length === 0){
-                    const reader = new FileReader()
-                    reader.readAsText(inputFile.files[0])
-                
-                    reader.onload = function(){
-                        fileItems = reader.result.split('\n').slice(1)
-                        let i = 0;
-                        fileItems.forEach((fileItem)=>{
-                            let id = new Date().getTime()
-                            id+= i
-                            id=id.toString()
-                            Storage.addStorageItem(fileItem, id) 
-                            i+=123
-                        }) 
+                if(todos.length != 0){
+                    UI.clearTodos()
+                }
+                const reader = new FileReader()
+                reader.readAsText(inputFile.files[0])
+                    
+                reader.onload = function(){
+                    fileItems = reader.result.split('\n').slice(1)
+                    Storage.addToStorageFromFile(fileItems)
                     ui.getItems()
                     UI.displayAlert("list opened from file", "success")
-                    }
-                }else{
-                    UI.displayAlert("list is not empty, cant open!", "danger")
                 }
+                
             }, false)
         }
     })
@@ -293,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 isAdded = true
         })
 
-    const id = new Date().getTime().toString()
+        const id = new Date().getTime().toString()
     //different submit cases
     if(input_text && !isAdded && !editFlag){   
 
@@ -346,16 +350,11 @@ options.addEventListener('click', (e) => {
 
 clearBtn.addEventListener('click', function(e){
     e.preventDefault()
-    const todos = listDiv.querySelectorAll(".todoDiv")
-    if(confirm('Are you sure?'))
-    {
-        todos.forEach(function(todo){
-            listDiv.removeChild(todo)
-        })
-        clearBtn.classList.remove('show-container')
-        UI.displayAlert("todos removed!", "success")
+    
+    if(confirm('Are you sure?')){
+        UI.clearTodos()
         UI.setToDefault()
-        localStorage.removeItem('Items')
+        UI.displayAlert("todos removed!", "success")
     }  
 })
 });
