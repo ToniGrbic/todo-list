@@ -23,7 +23,7 @@ class Todo{
     }
 }
 
-class UI {
+class UI{
   
   constructor(){
     this.completed = false
@@ -44,7 +44,7 @@ class UI {
         this.completed = false
         this.displayAlert('todo uncompleted!','danger')
     } 
-    Storage.toggleCompletedLocalStorage(completed, id)
+    Storage.toggleCompletedLocalStorage(this.completed, id)
     this.setToDefault()
  }
 
