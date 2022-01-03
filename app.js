@@ -16,12 +16,22 @@ const fileChoice = document.querySelector(".fileChoice")
 
 let completed = false
 let editFlag = false
-let editElement
 let editID = ''
+let editElement
+
+
+class Todo{
+    constructor(text, id, completed){
+        this.text = text
+        this.id = id
+        this.completed = completed
+    }
+}
 
 class UI {
- static checkItem(btn){
-    let todo = btn.parentElement.parentElement;
+
+  static checkItem(btn){
+    let todo = btn.parentElement.parentElement
     const id = todo.dataset.id;
     if(!todo.classList.contains('todoCompleted')){
         todo.classList.add('todoCompleted')
@@ -32,7 +42,7 @@ class UI {
         completed = false
         this.displayAlert('todo uncompleted!','danger')
     } 
-    Storage.toggleCompletedLocalStorage(completed, id)
+    Storage.toggleCompletedLocalStorage(this.completed, id)
     this.setToDefault()
  }
 
@@ -50,7 +60,7 @@ class UI {
  }
 
  static editItem(btn){
-    editElement = btn.nextElementSibling;
+    editElement = btn.nextElementSibling
     const element = btn.parentElement
     
     let todoStorageItem = Storage.getStorageItem(element.dataset.id)
@@ -109,18 +119,18 @@ class UI {
         localStorage.removeItem('Items')
  }
 
- appendTodo(text, id, completed){
+ appendTodo(todo){
     const itemDiv = document.createElement('div')
     const datasetAttr = document.createAttribute('data-id')
 
     itemDiv.classList.add('todoDiv')
-    datasetAttr.value = id
+    datasetAttr.value = todo.id
     itemDiv.setAttributeNode(datasetAttr)
 
     itemDiv.innerHTML = `<i class="fas fa-edit edit-btn"></i>
-                         <h4>${text}</h4>
+                         <h4>${todo.text}</h4>
                          <div><i class="fas fa-check-square fa-2x check-btn"></i>
-                            <i class="fas fa-minus-square fa-2x del-btn"></i></div>`;
+                            <i class="fas fa-minus-square fa-2x del-btn"></i></div>`
     
     itemDiv.addEventListener('click', function(e){
         const el = e.target
@@ -133,20 +143,21 @@ class UI {
         }
     })
 
-    if(completed)
+    if(todo.completed)
         itemDiv.classList.add('todoCompleted')
 
     listDiv.appendChild(itemDiv); 
  }
 
  getItems(){
-    let Items = Storage.getLocalStorage();
+    let Items = Storage.getLocalStorage()
 
     Items.forEach((Item)=>{
-        const input_text = Item.text;
+        const input_text = Item.text
         const id = Item.id
         const completed = Item.completed
-        this.appendTodo(input_text,id,completed); 
+        const todo = new Todo(input_text,id,completed)
+        this.appendTodo(todo) 
     })
     if(Items.length > 0)
     clearBtn.classList.add('show-container')
@@ -156,15 +167,15 @@ class UI {
 class Storage {
 
  static addStorageItem(text, id){
-    let Items = this.getLocalStorage();
+    let Items = this.getLocalStorage()
 
-    let todo = { text, id, completed:false }
+    let todo = new Todo(text, id, completed)
     Items.push(todo);
     this.setLocalStorage(Items)
  }
 
  static delStorageItem(id){
-    let Items = this.getLocalStorage();
+    let Items = this.getLocalStorage()
     
     Items = Items.filter((Item)=>{
         if(Item.id !== id){
@@ -175,7 +186,7 @@ class Storage {
  }
 
  static editLocalStorage(text, id){
-    let Items = this.getLocalStorage();
+    let Items = this.getLocalStorage()
 
     Items = Items.map((Item)=>{
         if(Item.id === id){
@@ -203,7 +214,7 @@ class Storage {
     if(localStorage.getItem('Items') === null){
         Items = [];
     }else{
-        Items = JSON.parse(localStorage.getItem('Items'));
+        Items = JSON.parse(localStorage.getItem('Items'))
     }
     return Items
  }
@@ -234,7 +245,6 @@ class Storage {
 };
 
 document.addEventListener('DOMContentLoaded', function(){
-    
     const ui = new UI()
     ui.getItems()
 
@@ -246,13 +256,13 @@ document.addEventListener('DOMContentLoaded', function(){
         if(e.target.classList.contains('Save-as')){
             
             fileName.classList.toggle('show-fileName')
-            let todos = Storage.getLocalStorage()
-            let text = todos.map(todo => todo.text).join("\n")
             
             downloadButton.addEventListener('click', function(e){
-                let fileName = fileNameInput.value;
-                text = "todos:\n" + text
-                console.log(text)
+                let todos = Storage.getLocalStorage()
+                let text = ""
+                text=todos.map(todo => todo.text).join("\n")
+                text = "Todos:\n" + text
+                let fileName = fileNameInput.value
                 UI.downloadFile(fileName, text)
                 fileNameInput.value=""
             })
@@ -262,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function(){
             inputFile.addEventListener('change', function(e){
                 
                 let fileName = inputFile.files[0].name
-                fileChoice.innerText = "current file: " + fileName;
+                fileChoice.innerText = "current file: " + fileName
 
                 let todos = Storage.getLocalStorage()
                 if(todos.length != 0){
@@ -276,8 +286,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     Storage.addToStorageFromFile(fileItems)
                     ui.getItems()
                     UI.displayAlert("list opened from file", "success")
-                }
-                
+                } 
             }, false)
         }
     })
@@ -288,11 +297,10 @@ document.addEventListener('DOMContentLoaded', function(){
         //check is todo is already added
         let isAdded = false
         const input_text = textInput.value;
-        const todos = listDiv.querySelectorAll('div');
+        const todos = Storage.getLocalStorage()
 
         todos.forEach(function(todo){
-            let TodoText = todo.children[1].innerText;
-
+            let TodoText = todo.text
             if(TodoText === input_text)
                 isAdded = true
         })
@@ -301,10 +309,11 @@ document.addEventListener('DOMContentLoaded', function(){
     //different submit cases
     if(input_text && !isAdded && !editFlag){   
 
-        ui.appendTodo(input_text,id,completed)
+        const todo = new Todo(input_text,id,completed)
+        ui.appendTodo(todo)
         clearBtn.classList.add('show-container')
         UI.displayAlert('todo added!', 'success')
-        Storage.addStorageItem(input_text,id)
+        Storage.addStorageItem(todo.text,todo.id)
         UI.setToDefault()
     }
     else if(input_text && !isAdded && editFlag){
@@ -324,26 +333,26 @@ document.addEventListener('DOMContentLoaded', function(){
 });  
 
 options.addEventListener('click', (e) => {
-    const todos = listDiv.querySelectorAll('.todoDiv');
+    const todos = listDiv.querySelectorAll('.todoDiv')
     todos.forEach(function(todo){
     switch(e.target.value){
         case "All":
-             todo.style.display = "flex";
+             todo.style.display = "flex"
         break;
         case "Completed":
             if(todo.classList.contains("todoCompleted")){
-                todo.style.display = "flex";
+                todo.style.display = "flex"
             }else{
-                todo.style.display ="none";
+                todo.style.display ="none"
             }
         break;
         case "Uncompleted":
             if(!todo.classList.contains("todoCompleted")){
-                todo.style.display = "flex";
+                todo.style.display = "flex"
             }else{
-                todo.style.display ="none";
+                todo.style.display ="none"
             }  
-          break; 
+        break; 
     }
     });
 });

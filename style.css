@@ -58,11 +58,6 @@ select{
     transition: 500ms;
 }
 
- /*.fa-plus-square{
-    color:var(--main-color);
-    transition: 800ms;
-}*/
-
 .submitDiv{
    display:flex;
 }
@@ -86,9 +81,9 @@ select{
 }
 
 #submit:hover h3{
-    
     transform: translate(0px, -5px);
 }
+
 button:hover{
     cursor: pointer;
 }
@@ -134,7 +129,6 @@ div i{
     transition: 500ms;
 }  
 
- 
 .todoDiv{
     height: 60px;
     background-color: white;
