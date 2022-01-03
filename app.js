@@ -14,11 +14,6 @@ const openFile = document.querySelector(".open-file")
 const inputFile = document.querySelector(".input-file")
 const fileChoice = document.querySelector(".fileChoice")
 
-let completed = false
-let editFlag = false
-let editID = ''
-let editElement
-
 
 class Todo{
     constructor(text, id, completed){
@@ -29,17 +24,24 @@ class Todo{
 }
 
 class UI {
+  
+  constructor(){
+    this.completed = false
+    this.editFlag = false
+    this.editID = ''
+    this.editElement = ''
+  }
 
   static checkItem(btn){
     let todo = btn.parentElement.parentElement
     const id = todo.dataset.id;
     if(!todo.classList.contains('todoCompleted')){
         todo.classList.add('todoCompleted')
-        completed = true
+        this.completed = true
         this.displayAlert('todo completed!','success')
     }else{
         todo.classList.remove('todoCompleted')
-        completed = false
+        this.completed = false
         this.displayAlert('todo uncompleted!','danger')
     } 
     Storage.toggleCompletedLocalStorage(this.completed, id)
@@ -60,18 +62,18 @@ class UI {
  }
 
  static editItem(btn){
-    editElement = btn.nextElementSibling
+    this.editElement = btn.nextElementSibling
     const element = btn.parentElement
     
     let todoStorageItem = Storage.getStorageItem(element.dataset.id)
-    editFlag = true
+    this.editFlag = true
 
-    if(todoStorageItem.completed && editFlag){
+    if(todoStorageItem.completed && this.editFlag){
         this.displayAlert('cannot edit a completed todo!', 'danger')
     }else{
-        textInput.value = editElement.innerHTML
+        textInput.value = this.editElement.innerHTML
         submitText.innerText="Edit"
-        editID = element.dataset.id
+        this.editID = element.dataset.id
     }
  }
     
@@ -87,9 +89,9 @@ class UI {
 
  static setToDefault(){
     textInput.value = ''
-    editID = ''
-    editFlag = false
-    completed = false
+    this.editID = ''
+    this.editFlag = false
+    this.completed = false
     submitText.innerText='Submit'
  }
 
@@ -168,7 +170,7 @@ class Storage {
 
  static addStorageItem(text, id){
     let Items = this.getLocalStorage()
-
+    let completed = false
     let todo = new Todo(text, id, completed)
     Items.push(todo);
     this.setLocalStorage(Items)
@@ -307,20 +309,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
         const id = new Date().getTime().toString()
     //different submit cases
-    if(input_text && !isAdded && !editFlag){   
+    if(input_text && !isAdded && !ui.editFlag){   
 
-        const todo = new Todo(input_text,id,completed)
+        const todo = new Todo(input_text,id,ui.completed)
         ui.appendTodo(todo)
         clearBtn.classList.add('show-container')
         UI.displayAlert('todo added!', 'success')
         Storage.addStorageItem(todo.text,todo.id)
         UI.setToDefault()
     }
-    else if(input_text && !isAdded && editFlag){
+    else if(input_text && !isAdded && ui.editFlag){
 
-        editElement.innerHTML = input_text
+        ui.editElement.innerHTML = input_text
         UI.displayAlert('todo edited!', 'success') 
-        Storage.editLocalStorage(input_text,editID)
+        Storage.editLocalStorage(input_text,ui.editID)
         UI.setToDefault()
     }
     else if(input_text && isAdded){
